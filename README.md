@@ -5,19 +5,23 @@ An intelligent whiteboard application built with Next.js, TypeScript, TailwindCS
 ## Features
 
 ✨ **Interactive Whiteboard**: Powered by tldraw for smooth drawing experience  
-🤖 **AI-Driven Visualizations**: Enter a topic and watch it come to life  
-📝 **Multiple Shape Types**: Text, arrows, circles, rectangles, triangles, lines  
+🤖 **AI-Driven Visualizations**: Enter a topic and watch it come to life with sequential animation  
+📝 **Rich Shape Support**: Text, arrows, circles, rectangles, triangles, lines, paths, highlights  
+🎨 **Code & Speech Bubbles**: Special formatting for code blocks and explanations  
 🖼️ **Image Support**: Display images on the canvas  
-⚡ **Real-time Drawing**: Instant visualization with loading indicators  
-🎨 **TailwindCSS Styling**: Clean, responsive UI design  
-🔄 **Clear Board**: One-click canvas reset
+⚡ **Animated Drawing**: Step-by-step visualization with 500ms delays between elements  
+� **Smart Color Mapping**: Automatically converts hex colors to tldraw's palette  
+🔄 **Auto-Zoom**: Automatically fits all content in view after drawing  
+🧹 **Clear Board**: One-click canvas reset  
+💾 **Fallback Mode**: Works without API key using mock data
 
 ## Tech Stack
 
 - **Next.js 14+** - React framework with App Router
 - **TypeScript** - Type safety and better developer experience
 - **TailwindCSS** - Utility-first CSS framework
-- **tldraw** - Infinite canvas whiteboard library
+- **tldraw 2.x** - Infinite canvas whiteboard library
+- **Google Gemini AI** - AI-powered diagram generation (gemini-pro model)
 - **React** - UI component library
 
 ## Getting Started
@@ -49,32 +53,50 @@ npm run dev
 
 ## Usage
 
-1. **Enter a Topic**: Type any concept in the input field (e.g., "Photosynthesis", "For Loop in Python", "Water Cycle")
-2. **Click Draw**: The AI will generate a visual diagram
-3. **Interact**: Use tldraw's built-in tools to modify or annotate
-4. **Clear**: Reset the canvas to start fresh
+1. **Enter a Topic**: Type any concept in the input field (e.g., "Area of a Sector", "Photosynthesis", "Binary Search Tree")
+2. **Click Draw**: The AI will generate an intelligent visual diagram with step-by-step animation
+3. **Watch Animation**: Each element appears sequentially with 500ms delays for better understanding
+4. **Interact**: Use tldraw's built-in tools to modify, annotate, or extend the diagram
+5. **Clear**: Reset the canvas to start fresh
 
 ### Example Topics
 
-- `Photosynthesis` - Shows the process with sun, leaf, and outputs
-- `For Loop in Python` - Visualizes loop structure and flow
-- `Water Cycle` - Displays evaporation, clouds, and rain
+Try these topics to see the AI in action:
+
+- **Mathematics**: `"Area of a Sector"`, `"Pythagorean Theorem"`, `"Quadratic Formula"`
+- **Programming**: `"For Loop in Python"`, `"Binary Search Tree"`, `"Recursion"`
+- **Science**: `"Photosynthesis"`, `"Water Cycle"`, `"Cell Structure"`
+- **Concepts**: `"Machine Learning Pipeline"`, `"HTTP Request Flow"`, `"Git Workflow"`
+
+### Advanced Features
+
+- **Sequential Animation**: Elements appear one by one (500ms intervals)
+- **Smart Layout**: AI positions elements logically with proper spacing
+- **Color Coding**: Different colors for different concept types
+- **Text Formatting**: Regular text, code blocks, and speech bubbles
+- **Visual Aids**: Highlights, arrows, and shapes for emphasis
 
 ## Project Structure
 
 ```
 WhiteBoard/
+├── .github/
+│   └── copilot-instructions.md       # GitHub Copilot configuration
 ├── src/
 │   ├── app/
 │   │   ├── api/
 │   │   │   └── draw/
-│   │   │       └── route.ts          # API endpoint for drawing instructions
+│   │   │       └── route.ts          # Gemini AI integration & mock data
 │   │   ├── page.tsx                  # Main page component
 │   │   ├── layout.tsx                # Root layout
 │   │   └── globals.css               # Global styles
-│   └── components/
-│       └── AIDrivenWhiteboard.tsx    # Main whiteboard component
+│   ├── components/
+│   │   └── AIDrivenWhiteboard.tsx    # Main whiteboard with animation
+│   └── types/
+│       └── tldraw.d.ts               # TypeScript declarations for tldraw
 ├── public/                            # Static assets
+├── .env.local.example                 # Environment variables template
+├── SETUP_GEMINI.md                    # Gemini setup guide
 ├── package.json                       # Dependencies and scripts
 ├── tsconfig.json                      # TypeScript configuration
 ├── tailwind.config.ts                 # TailwindCSS configuration
@@ -99,24 +121,43 @@ Generates drawing instructions for a given topic.
 {
   "instructions": [
     {
+      "id": "title",
       "type": "drawText",
-      "text": "PHOTOSYNTHESIS",
-      "position": [300, 50]
+      "text": "Area of a Sector 📐",
+      "position": [300, 50],
+      "color": "#2C3E50",
+      "step": 1
     },
     {
-      "type": "drawArrow",
-      "from": [200, 200],
-      "to": [300, 200]
-    },
-    {
+      "id": "circle1",
       "type": "drawCircle",
-      "points": [[100, 150], [200, 150], [200, 250], [100, 250]]
+      "position": [200, 350],
+      "size": [200, 200],
+      "color": "#D4EEFF",
+      "step": 2
     },
     {
-      "type": "showImage",
-      "url": "https://example.com/image.png",
-      "position": [100, 100],
-      "size": [200, 200]
+      "id": "arrow1",
+      "type": "drawArrow",
+      "from": [300, 350],
+      "to": [400, 350],
+      "color": "#E74C3C",
+      "step": 3
+    },
+    {
+      "id": "formula",
+      "type": "drawCodeBlock",
+      "text": "A = (θ / 360°) × πr²",
+      "position": [500, 400],
+      "size": [250, 70],
+      "step": 4
+    },
+    {
+      "id": "speech",
+      "type": "drawSpeechBubble",
+      "text": "A sector is a fraction of the circle!",
+      "position": [550, 200],
+      "step": 5
     }
   ]
 }
@@ -124,13 +165,25 @@ Generates drawing instructions for a given topic.
 
 ### Instruction Types
 
-- **drawText**: `{ type, text, position: [x, y] }`
-- **drawArrow**: `{ type, from: [x, y], to: [x, y] }`
-- **drawCircle**: `{ type, points: [[x, y], ...] }`
-- **drawRectangle**: `{ type, points: [[x, y], ...] }`
-- **drawTriangle**: `{ type, points: [[x, y], [x, y], [x, y]] }`
-- **drawLine**: `{ type, points: [[x, y], [x, y]] }`
-- **showImage**: `{ type, url, position: [x, y], size: [w, h] }`
+**Basic Shapes:**
+- **drawText**: `{ type, text, position: [x, y], color?, step? }`
+- **drawArrow**: `{ type, from: [x, y], to: [x, y], color?, step? }`
+- **drawCircle**: `{ type, position?: [x, y], size?: [w, h], points?: [[x,y],...], color?, step? }`
+- **drawRectangle**: `{ type, position?: [x, y], size?: [w, h], points?: [[x,y],...], color?, step? }`
+- **drawTriangle**: `{ type, points: [[x, y], [x, y], [x, y]], color?, step? }`
+- **drawLine**: `{ type, from?: [x, y], to?: [x, y], points?: [[x,y],...], color?, step? }`
+- **drawPath**: `{ type, points: [[x, y], ...], color?, step? }`
+
+**Special Elements:**
+- **drawHighlight**: `{ type, points: [[x, y], ...], step? }` - Yellow filled area
+- **drawCodeBlock**: `{ type, text, position: [x, y], size?: [w, h], step? }` - Grey text for code/formulas
+- **drawSpeechBubble**: `{ type, text, position: [x, y], step? }` - Light blue text for explanations
+- **showImage**: `{ type, url, position: [x, y], size: [w, h], step? }`
+
+**Color Support:**
+- Accepts hex codes (e.g., `#FF4500`) - automatically mapped to tldraw colors
+- Accepts tldraw color names: `black`, `grey`, `violet`, `blue`, `yellow`, `orange`, `green`, `red`, `white`
+- Color variants: `light-violet`, `light-blue`, `light-green`, `light-red`
 
 ## Development
 
